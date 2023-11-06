@@ -1,1 +1,1 @@
-export const baseUrl = 'https://trint.nguyentantria4.repl.co/';
+export const baseUrl = 'https://trint.onrender.com/';

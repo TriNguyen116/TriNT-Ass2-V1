@@ -10,12 +10,12 @@ const mapStateToProps = (state) => {
     dishes: state.dishes,
     comments: state.comments,
     favorites: state.favorites,
-    comment: state.comment,
   }
 };
-import { postFavorite } from '../redux/ActionCreators';
+import { postFavorite, postComment  } from '../redux/ActionCreators';
 const mapDispatchToProps = (dispatch) => ({
-  postFavorite: (dishId) => dispatch(postFavorite(dishId))
+  postFavorite: (dishId) => dispatch(postFavorite(dishId)),
+  postComment: (id, dishId, author, comment, rating, date) => dispatch(postComment(id, dishId, author, comment, rating, date))
 });
 
 class ModalContent extends Component {
@@ -29,8 +29,7 @@ class ModalContent extends Component {
         selectedValue={this.props.author} onValueChange={(value) => this.props.setState({ author: value })}/>
         
         <Input placeholder='Comment'
-        leftIcon={ <Icon name='chat' color='#7cc' size={35} />} 
-        selectedValue={this.props.comment} onValueChange={(value) => this.props.setState({ comment: value })}/>
+        leftIcon={ <Icon name='chat' color='#7cc' size={35} />} onChangeText={(text) => this.setState({ comment: text })} value={this.props.comment}/>
 
         <TouchableOpacity style={styles.submitButton} underlayColor='#fff' 
           onPress={()=>this.props.handleComment()}>
@@ -101,7 +100,7 @@ class Dishdetail extends Component {
       showModal: false,
       rating: 5,
       author: '',
-      comments: '',
+      comment: '',
     };
   }
   render() {
@@ -109,26 +108,57 @@ class Dishdetail extends Component {
     const dish = this.props.dishes.dishes[dishId];
     const comments = this.props.comments.comments.filter((cmt) => cmt.dishId === dishId);
     const favorite = this.props.favorites.some((el) => el === dishId);
-    const nwcomment = this.props.comment.some((el) => el === dishId);
     
-
     return (
       <ScrollView>
         <RenderDish dish={dish} favorite={favorite} 
           onPressFavorite={() => this.markFavorite(dishId)} 
           onPressPencil={() => this.onPressPencil()}/>
         <RenderComments comments={comments} />
-        <Modal  animationType={'slide'}  visible={this.state.showModal}>
-          <ModalContent
-            nwcomment={nwcomment} 
-           onPressClose={() => this.setState({ showModal: false })}
-           handleComment={()=>this.handleComment()} 
-           rating={this.state.rating}
-           dishId={dishId}
-           author={this.state.author}
-           comment={this.state.comment}
-           handleRatingChange={()=>this.handleRatingChange()}
-           />
+        <Modal
+          animationType="slide"
+          visible={this.state.showModal}
+          onRequestClose={() => this.onPressPencil()}
+        >
+          <View style={{ flex: 1, alignItems: 'center', marginTop: 60 }}>
+            <Rating
+              type="star"
+              startingValue={this.state.rating}
+              imageSize={40}
+              showRating
+              onFinishRating={rating => this.setState({ rating: rating })}
+            /> 
+
+            <Input
+              placeholder="Author"
+              leftIcon={<Icon name="person" color="#7cc" size={35} />}
+              onChangeText={text => this.setState({ author: text })}
+              value={this.state.author}
+            />
+
+            <Input
+              placeholder="Comment"
+              leftIcon={<Icon name="chat" color="#7cc" size={35} />}
+              onChangeText={text => this.setState({ comment: text })}
+              value={this.state.comment}
+            />
+
+            <TouchableOpacity
+              style={styles.submitButton}
+              underlayColor="#fff"
+              onPress={() => this.handleComment()}
+            >
+              <Text style={styles.buttonText}>SUBMIT</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              underlayColor="#fff"
+              onPress={() => this.setState({ showModal: false })}
+            >
+              <Text style={styles.buttonText}>CLOSE</Text>
+            </TouchableOpacity>
+          </View>
         </Modal>
       </ScrollView>
       
@@ -138,33 +168,26 @@ class Dishdetail extends Component {
     this.props.postFavorite(dishId);
   }  
   onPressPencil() {
-    this.setState({ showModal: true });
+    this.toggleModal();
   }
   handleComment() {
-    const { dishId } = this.props.route.params;
-    const { rating, author, comment } = this.state;
-  
-    // if (!rating || !author || !comment) {
-    //   Alert.alert('Error', 'Please fill in all fields.');
-    //   return;
-    // }
-  
-    // this.props.postComment(dishId, rating, author, comment);
-  
-    Alert.alert(
-      'Submit Success',
-      '',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            this.setState({ showModal: false });
-          },
-        },
-      ],
-    );
+     console.log(JSON.stringify(this.state));
+    const id = this.props.comments.comments.length;
+    const date = new Date().toISOString();
+    this.props.postComment(id, this.props.route.params.dishId, this.state.author, this.state.comment, this.state.rating, date);
+    this.toggleModal();
   }
-  
+  toggleModal() {
+    this.setState({ showModal: !this.state.showModal });
+  }
+  resetForm() {
+    this.setState({
+        author: '',
+        comment: '',
+        rating: 5,
+        showModal: false
+    });
+  }
 }
 
 const styles = StyleSheet.create(

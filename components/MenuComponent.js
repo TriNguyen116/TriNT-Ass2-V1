@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { FlatList, View, Text } from 'react-native';
 import { ListItem, Avatar } from 'react-native-elements';
 import Dishdetail from './DishdetailComponent';
-//import { DISHES } from '../shared/dishes';
 import { baseUrl } from '../shared/baseUrl';
 import Loading from './LoadingComponent';
 // redux

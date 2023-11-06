@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import { View, ScrollView, Text } from 'react-native';
 import { Card, Image } from 'react-native-elements';
-/*import { DISHES } from '../shared/dishes';
-import { PROMOTIONS } from '../shared/promotions';
-import { LEADERS } from '../shared/leaders';*/
 import { baseUrl } from '../shared/baseUrl';
 import Loading from './LoadingComponent';
 // redux
