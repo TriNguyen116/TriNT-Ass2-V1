@@ -5,6 +5,8 @@ import { ScrollView } from 'react-native-virtualized-view';
 import { baseUrl } from '../shared/baseUrl';
 // redux
 import { connect } from 'react-redux';
+import { postFavorite, postComment  } from '../redux/ActionCreators';
+
 const mapStateToProps = (state) => {
   return {
     dishes: state.dishes,
@@ -12,7 +14,6 @@ const mapStateToProps = (state) => {
     favorites: state.favorites,
   }
 };
-import { postFavorite, postComment  } from '../redux/ActionCreators';
 const mapDispatchToProps = (dispatch) => ({
   postFavorite: (dishId) => dispatch(postFavorite(dishId)),
   postComment: (id, dishId, author, comment, rating, date) => dispatch(postComment(id, dishId, author, comment, rating, date))
@@ -21,26 +22,47 @@ const mapDispatchToProps = (dispatch) => ({
 class ModalContent extends Component {
   render(){
     return (
-      <View style={{flex:1, alignItems:'center',marginTop:80}}>
-        <Rating type='star' ratingCount={5} imageSize={40} showRating onFinishRating={this.handleRatingChange} startingValue={this.props.rating}/>
+      <View style={{ flex: 1, alignItems: 'center', marginTop: 60 }}>
+            <Rating
+              type="star"
+              startingValue={this.props.rating}
+              imageSize={40}
+              showRating
+              onFinishRating={(rating) => {this.props.onRatingChange(rating)}}
+            /> 
 
-        <Input placeholder='Author' 
-        leftIcon={ <Icon name='person' color='#7cc' size={35} />} 
-        selectedValue={this.props.author} onValueChange={(value) => this.props.setState({ author: value })}/>
-        
-        <Input placeholder='Comment'
-        leftIcon={ <Icon name='chat' color='#7cc' size={35} />} onChangeText={(text) => this.setState({ comment: text })} value={this.props.comment}/>
+            <Input
+              
+              placeholder="Author"
+              leftIcon={<Icon name="person" color="#7cc" size={35} />}
+              onChangeText={text => this.props.onAuthorChange(text)} 
+              value={this.props.author} 
+            />
 
-        <TouchableOpacity style={styles.submitButton} underlayColor='#fff' 
-          onPress={()=>this.props.handleComment()}>
-          <Text style={styles.buttonText}>SUBMIT</Text>
-         </TouchableOpacity>
+            <Input
+              placeholder="Comment"
+              leftIcon={<Icon name="chat" color="#7cc" size={35} />}
+              onChangeText={text => this.props.onCommentChange(text)} 
+              value={this.props.comment}
+            />
 
-         <TouchableOpacity style={styles.closeButton} underlayColor='#fff' onPress={() => this.props.onPressClose()}>
-          <Text style={styles.buttonText}>CLOSE</Text>
-         </TouchableOpacity>
-      </View>
-    )
+            <TouchableOpacity
+              style={styles.submitButton}
+              underlayColor="#fff"
+              onPress={() => {this.props.handleComment();this.props.resetForm()}}
+            >
+              <Text style={styles.buttonText}>SUBMIT</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              underlayColor="#fff"
+              onPress={() => {this.props.onPressClose();this.props.resetForm()}}
+            >
+              <Text style={styles.buttonText}>CLOSE</Text>
+            </TouchableOpacity>
+          </View>
+    ) 
   }
   
 }
@@ -85,7 +107,7 @@ class RenderComments extends Component {
     return (
       <View key={index} style={{ margin: 10 }}>
         <Text style={{ fontSize: 14 }}>{item.comment}</Text>
-        <Rating type='star' ratingCount={5} imageSize={12} startingValue={item.rating} style={{flexDirection:'row', paddingTop:5, paddingBottom:5}}/>
+        <Rating type='star' imageSize={12} startingValue={item.rating} style={{flexDirection:'row', paddingTop:5, paddingBottom:5}}/>
         <Text style={{ fontSize: 12 }}>{'-- ' + item.author + ', ' + item.date} </Text>
       </View>
     );
@@ -118,47 +140,19 @@ class Dishdetail extends Component {
         <Modal
           animationType="slide"
           visible={this.state.showModal}
-          onRequestClose={() => this.onPressPencil()}
         >
-          <View style={{ flex: 1, alignItems: 'center', marginTop: 60 }}>
-            <Rating
-              type="star"
-              startingValue={this.state.rating}
-              imageSize={40}
-              showRating
-              onFinishRating={rating => this.setState({ rating: rating })}
-            /> 
-
-            <Input
-              placeholder="Author"
-              leftIcon={<Icon name="person" color="#7cc" size={35} />}
-              onChangeText={text => this.setState({ author: text })}
-              value={this.state.author}
-            />
-
-            <Input
-              placeholder="Comment"
-              leftIcon={<Icon name="chat" color="#7cc" size={35} />}
-              onChangeText={text => this.setState({ comment: text })}
-              value={this.state.comment}
-            />
-
-            <TouchableOpacity
-              style={styles.submitButton}
-              underlayColor="#fff"
-              onPress={() => this.handleComment()}
-            >
-              <Text style={styles.buttonText}>SUBMIT</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.closeButton}
-              underlayColor="#fff"
-              onPress={() => this.setState({ showModal: false })}
-            >
-              <Text style={styles.buttonText}>CLOSE</Text>
-            </TouchableOpacity>
-          </View>
+         <ModalContent
+          showModal={this.state.showModal}
+          handleComment={()=>this.handleComment()} 
+          onPressClose={() => this.setState({ showModal: false })}
+          resetForm={()=>this.resetForm()}
+          rating = {this.state.rating}
+          onRatingChange={(rating) => this.setState({ rating })}
+          author={this.state.author}
+          onAuthorChange={(author) => this.setState({ author })} 
+          comment={this.state.comment}
+          onCommentChange={(comment) => this.setState({ comment })}
+         />
         </Modal>
       </ScrollView>
       
