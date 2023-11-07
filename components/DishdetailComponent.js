@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text, FlatList, Modal, Button, StyleSheet,TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList,ScrollView, Modal, Button, StyleSheet,TouchableOpacity, Alert } from 'react-native';
 import { Card, Image, Icon, Rating, Input } from 'react-native-elements';
-import { ScrollView } from 'react-native-virtualized-view';
+// import { ScrollView } from 'react-native-virtualized-view';
 import { baseUrl } from '../shared/baseUrl';
 // redux
 import { connect } from 'react-redux';
@@ -34,14 +34,16 @@ class ModalContent extends Component {
             <Input
               
               placeholder="Author"
-              leftIcon={<Icon name="person" color="#7cc" size={35} />}
+              // leftIcon={<Icon name="person" color="#7cc" size={35} />}
+              leftIcon={{ type: 'font-awesome', name: 'user-o' }}
               onChangeText={text => this.props.onAuthorChange(text)} 
               value={this.props.author} 
             />
 
             <Input
               placeholder="Comment"
-              leftIcon={<Icon name="chat" color="#7cc" size={35} />}
+              // leftIcon={<Icon name="chat" color="#7cc" size={35} />}
+              leftIcon={{ type: 'font-awesome', name: 'comment-o' }}
               onChangeText={text => this.props.onCommentChange(text)} 
               value={this.props.comment}
             />
